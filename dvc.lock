@@ -1,0 +1,140 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python -m src.components.data_ingestion
+    deps:
+    - path: data/fraudTrain.csv
+      hash: md5
+      md5: 9723893e5492dc0551036edcf596e284
+      size: 351238196
+    - path: src/components/data_ingestion.py
+      hash: md5
+      md5: d3788bb88b7f0aca289f7fd7039fa315
+      size: 3519
+    - path: src/exception.py
+      hash: md5
+      md5: 9e92eab9dbeb24437297ffaa13363ca8
+      size: 301
+    - path: src/logger.py
+      hash: md5
+      md5: 779a82c4edaf3b66f63dde344026c846
+      size: 1721
+    params:
+      params.yaml:
+        ingestion.random_state: 42
+        ingestion.test_size: 0.2
+    outs:
+    - path: artifacts/test.csv
+      hash: md5
+      md5: 632b4bf0ad64d392a9cbec734bfcf3d4
+      size: 69590566
+    - path: artifacts/train.csv
+      hash: md5
+      md5: 997d26ef62d1ec030108a0aa34eac7d8
+      size: 278390926
+  data_transformation:
+    cmd: python -m src.components.data_transformation
+    deps:
+    - path: artifacts/test.csv
+      hash: md5
+      md5: 632b4bf0ad64d392a9cbec734bfcf3d4
+      size: 69590566
+    - path: artifacts/train.csv
+      hash: md5
+      md5: 997d26ef62d1ec030108a0aa34eac7d8
+      size: 278390926
+    - path: src/components/data_transformation.py
+      hash: md5
+      md5: 30b1bdc0b2b5b86516a4c31eac5d4e03
+      size: 7434
+    - path: src/exception.py
+      hash: md5
+      md5: 9e92eab9dbeb24437297ffaa13363ca8
+      size: 301
+    - path: src/logger.py
+      hash: md5
+      md5: 779a82c4edaf3b66f63dde344026c846
+      size: 1721
+    outs:
+    - path: artifacts/preprocessor.pkl
+      hash: md5
+      md5: 50737670d05f8172f5d72172500dac22
+      size: 44825
+    - path: artifacts/test_transformed.pkl
+      hash: md5
+      md5: c87a0c9ac05a71e21cda52441530887a
+      size: 39745482
+    - path: artifacts/train_transformed.pkl
+      hash: md5
+      md5: 7b264f9268bab6581a5d4017a01c10c6
+      size: 158975666
+  model_training:
+    cmd: python -m src.components.model_trainer
+    deps:
+    - path: artifacts/train_transformed.pkl
+      hash: md5
+      md5: 7b264f9268bab6581a5d4017a01c10c6
+      size: 158975666
+    - path: src/components/model_trainer.py
+      hash: md5
+      md5: 78544ce7c835b37779602f97b76edac5
+      size: 6049
+    - path: src/exception.py
+      hash: md5
+      md5: 9e92eab9dbeb24437297ffaa13363ca8
+      size: 301
+    - path: src/logger.py
+      hash: md5
+      md5: 779a82c4edaf3b66f63dde344026c846
+      size: 1721
+    params:
+      params.yaml:
+        training.fraud_threshold: 0.5
+        training.random_state: 42
+        training.total_trees: 100
+        training.trees_per_batch: 20
+        training.validation_size: 0.2
+    outs:
+    - path: models/fraud_model.pkl
+      hash: md5
+      md5: e417067c772f3955cdc415425cc8fc2f
+      size: 872138
+    - path: reports/validation_metrics.json
+      hash: md5
+      md5: 79345cea7e2a9b2660d1835d31b8106f
+      size: 303
+  model_evaluation:
+    cmd: python -m src.components.model_evaluation
+    deps:
+    - path: artifacts/test_transformed.pkl
+      hash: md5
+      md5: c87a0c9ac05a71e21cda52441530887a
+      size: 39745482
+    - path: models/fraud_model.pkl
+      hash: md5
+      md5: e417067c772f3955cdc415425cc8fc2f
+      size: 872138
+    - path: src/components/model_evaluation.py
+      hash: md5
+      md5: 97439a31910414cc991b5d952a869870
+      size: 4767
+    - path: src/exception.py
+      hash: md5
+      md5: 9e92eab9dbeb24437297ffaa13363ca8
+      size: 301
+    - path: src/logger.py
+      hash: md5
+      md5: 779a82c4edaf3b66f63dde344026c846
+      size: 1721
+    params:
+      params.yaml:
+        evaluation.fraud_threshold: 0.5
+    outs:
+    - path: reports/classification_report.txt
+      hash: md5
+      md5: cdd139258231b11226b32efaff689a42
+      size: 334
+    - path: reports/test_metrics.json
+      hash: md5
+      md5: ef1af1cbcc6864c2027bcadd68a61885
+      size: 393

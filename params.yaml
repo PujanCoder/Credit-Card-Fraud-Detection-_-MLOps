@@ -1,0 +1,13 @@
+ingestion:
+  test_size: 0.20
+  random_state: 42
+
+training:
+  validation_size: 0.20
+  random_state: 42
+  total_trees: 100
+  trees_per_batch: 20
+  fraud_threshold: 0.50
+
+evaluation:
+  fraud_threshold: 0.50

@@ -1,0 +1,60 @@
+stages:
+  data_ingestion:
+    cmd: python -m src.components.data_ingestion
+    deps:
+      - data/fraudTrain.csv
+      - src/components/data_ingestion.py
+      - src/logger.py
+      - src/exception.py
+    params:
+      - ingestion.test_size
+      - ingestion.random_state
+    outs:
+      - artifacts/train.csv
+      - artifacts/test.csv
+
+  data_transformation:
+    cmd: python -m src.components.data_transformation
+    deps:
+      - artifacts/train.csv
+      - artifacts/test.csv
+      - src/components/data_transformation.py
+      - src/logger.py
+      - src/exception.py
+    outs:
+      - artifacts/preprocessor.pkl
+      - artifacts/train_transformed.pkl
+      - artifacts/test_transformed.pkl
+
+  model_training:
+    cmd: python -m src.components.model_trainer
+    deps:
+      - artifacts/train_transformed.pkl
+      - src/components/model_trainer.py
+      - src/logger.py
+      - src/exception.py
+    params:
+      - training.validation_size
+      - training.random_state
+      - training.total_trees
+      - training.trees_per_batch
+      - training.fraud_threshold
+    outs:
+      - models/fraud_model.pkl
+    metrics:
+      - reports/validation_metrics.json
+
+  model_evaluation:
+    cmd: python -m src.components.model_evaluation
+    deps:
+      - artifacts/test_transformed.pkl
+      - models/fraud_model.pkl
+      - src/components/model_evaluation.py
+      - src/logger.py
+      - src/exception.py
+    params:
+      - evaluation.fraud_threshold
+    outs:
+      - reports/classification_report.txt
+    metrics:
+      - reports/test_metrics.json
