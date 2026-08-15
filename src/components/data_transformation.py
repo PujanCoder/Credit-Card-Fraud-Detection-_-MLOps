@@ -58,7 +58,7 @@ class DataTransformation:
         )
         return 2 * radius_km * np.arcsin(np.sqrt(a))
 
-    def _create_features(self, df: pd.DataFrame) -> pd.DataFrame:
+    def create_features(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
 
         required_columns = {
@@ -162,8 +162,8 @@ class DataTransformation:
             y_train = train_df[target].astype(int)
             y_test = test_df[target].astype(int)
 
-            X_train = self._create_features(train_df.drop(columns=[target]))
-            X_test = self._create_features(test_df.drop(columns=[target]))
+            X_train = self.create_features(train_df.drop(columns=[target]))
+            X_test = self.create_features(test_df.drop(columns=[target]))
 
             preprocessor = self._build_preprocessor(X_train)
 
