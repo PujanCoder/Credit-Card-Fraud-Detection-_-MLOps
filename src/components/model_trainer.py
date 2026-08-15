@@ -3,6 +3,18 @@ from pathlib import Path
 from time import perf_counter
 import json
 import logging
+import os
+import mlflow
+import mlflow.sklearn
+
+
+mlflow.set_tracking_uri(
+    os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+)
+mlflow.set_experiment(
+    os.getenv("MLFLOW_EXPERIMENT_NAME", "credit-card-fraud-detection")
+)
+
 
 import joblib
 from sklearn.ensemble import RandomForestClassifier
@@ -51,6 +63,7 @@ class ModelTrainer:
 
     def initiate_model_training(self) -> Path:
         start_time = perf_counter()
+
 
         try:
             self._progress("[1/5] Loading transformed training data...")
@@ -155,6 +168,8 @@ class ModelTrainer:
             )
 
             return self.config.model_path
+        mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+        mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME", "credit-card-fraud-detection"))
 
         except FileNotFoundError as exc:
             logger.exception("Transformed training artifact was not found.")
