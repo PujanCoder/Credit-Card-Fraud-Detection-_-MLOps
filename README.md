@@ -2,6 +2,15 @@
 
 An end-to-end machine learning project for credit card fraud detection, built with an MLOps workflow for data versioning, reproducible pipelines, experiment tracking, model evaluation, and API serving.
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-orange?logo=scikit-learn)
+![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-purple?logo=dvc)
+![MLflow](https://img.shields.io/badge/MLflow-Experiment%20Tracking-blue?logo=mlflow)
+![Flask](https://img.shields.io/badge/Flask-REST%20API-black?logo=flask)
+![AWS S3](https://img.shields.io/badge/AWS-S3-orange?logo=amazon-aws)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-black?logo=github-actions)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 ## Overview
 
 This project focuses on building a reproducible machine learning workflow rather than only training a model in a notebook.
