@@ -1,344 +1,198 @@
-# 💳 Credit Card Fraud Detection — End-to-End MLOps
+# Credit Card Fraud Detection — MLOps
 
-> An end-to-end Machine Learning and MLOps project for detecting fraudulent credit card transactions, with reproducible data pipelines, experiment tracking, model versioning, API deployment, and cloud-based data versioning.
+An end-to-end machine learning project for credit card fraud detection, built with an MLOps workflow for data versioning, reproducible pipelines, experiment tracking, model evaluation, and API serving.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-orange?logo=scikit-learn)
-![DVC](https://img.shields.io/badge/DVC-Data%20Versioning-purple?logo=dvc)
-![MLflow](https://img.shields.io/badge/MLflow-Experiment%20Tracking-blue?logo=mlflow)
-![Flask](https://img.shields.io/badge/Flask-REST%20API-black?logo=flask)
-![AWS S3](https://img.shields.io/badge/AWS-S3-orange?logo=amazon-aws)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-black?logo=github-actions)
-![License](https://img.shields.io/badge/License-MIT-green)
+## Overview
 
----
+This project focuses on building a reproducible machine learning workflow rather than only training a model in a notebook.
 
-## 📌 Overview
+The pipeline covers:
 
-This project demonstrates how to build and manage a **production-oriented machine learning workflow** rather than simply training a model inside a notebook.
+* Data ingestion
+* Data preprocessing and transformation
+* Feature engineering
+* Model training
+* Model evaluation
+* Experiment tracking with MLflow
+* Data and pipeline versioning with DVC
+* Remote storage using AWS S3
+* Model serving through a Flask API
+* Project testing and environment validation
+* CI/CD setup using GitHub Actions
 
-The system covers the complete ML lifecycle:
+The main DVC pipeline is:
 
 ```text
-Raw Data
-   │
-   ▼
 Data Ingestion
-   │
-   ▼
+      |
+      v
 Data Transformation
-   │
-   ▼
-Feature Engineering
-   │
-   ▼
+      |
+      v
 Model Training
-   │
-   ▼
+      |
+      v
 Model Evaluation
-   │
-   ├──────────────► MLflow Experiment Tracking
-   │
-   └──────────────► DVC Pipeline & Versioning
-                         │
-                         ▼
-                       AWS S3
-                         │
-                         ▼
-                  Versioned Artifacts
-                         │
-                         ▼
-                    Flask REST API
 ```
 
-The goal is to create a **reproducible, maintainable, and deployable fraud detection pipeline** using modern MLOps practices.
+The pipeline is defined in `dvc.yaml` and locked using `dvc.lock`.
 
----
+## Project Structure
 
-# 🎯 Project Objectives
+```text
+Credit-Card-Fraud-Detection-_-MLOps/
+|
+├── .dvc/                       # DVC configuration
+├── .github/
+│   └── workflows/              # GitHub Actions workflows
+|
+├── artifacts/                  # Generated artifacts
+├── data/                       # Dataset and DVC-tracked data
+├── docs/                       # Documentation
+├── flask_app/                  # Flask application
+├── local_s3/                   # Local storage used during development
+├── logs/                       # Application and pipeline logs
+├── models/                     # Trained models
+├── notebooks/                  # Exploratory notebooks
+├── references/                 # Reference files
+├── reports/                    # Reports and evaluation results
+|
+├── src/
+│   └── components/
+│       ├── model_trainer.py    # Model training logic
+│       ├── preprocessing.py    # Data preprocessing
+│       ├── train_model.py      # Training entry point
+│       └── visualize.py        # Visualization utilities
+|
+├── .dvcignore
+├── .gitignore
+├── dvc.yaml                   # DVC pipeline definition
+├── dvc.lock                   # Locked pipeline state
+├── params.yaml                # Pipeline/model parameters
+├── requirements.txt           # Python dependencies
+├── setup.py                   # Package configuration
+├── Makefile                   # Project commands
+├── test_environment.py        # Environment validation
+├── tox.ini                    # Testing configuration
+├── LICENSE
+└── README.md
+```
 
-* Build an end-to-end fraud detection ML pipeline
-* Separate data ingestion, transformation, training, and evaluation
-* Version datasets and ML artifacts using DVC
-* Store DVC remote data in AWS S3
-* Track experiments and model metrics with MLflow
-* Expose the trained model through a Flask REST API
-* Make the pipeline reproducible
-* Prepare the project for CI/CD automation
-* Maintain a clean and modular ML project structure
+## Tech Stack
 
----
+* Python 3.10
+* Pandas
+* NumPy
+* Scikit-learn
+* DVC
+* dvc-s3
+* AWS S3
+* MLflow
+* Flask
+* Git
+* GitHub Actions
+* Tox
 
-# 🧠 Machine Learning Pipeline
+## DVC
 
-The project uses a structured DVC pipeline consisting of the following stages:
+DVC is used to track datasets and manage the machine learning pipeline without storing large data files directly in Git.
+
+The project uses an AWS S3 bucket as the DVC remote.
+
+```text
+DVC remote: s3://credit-demo123
+```
+
+Useful commands:
+
+```bash
+# Check configured remotes
+dvc remote list
+
+# Pull data from the remote
+dvc pull
+
+# Reproduce the pipeline
+dvc repro
+
+# Push tracked data to the remote
+dvc push
+
+# Display the pipeline
+dvc dag
+```
+
+The current pipeline contains:
 
 ```text
 data_ingestion
-      │
-      ▼
+       |
+       v
 data_transformation
-      │
-      ▼
+       |
+       v
 model_training
-      │
-      ▼
+       |
+       v
 model_evaluation
 ```
 
-The pipeline is defined in:
+## MLflow
 
-```text
-dvc.yaml
-```
+MLflow is used for tracking machine learning experiments and storing information about model runs.
 
-Pipeline state and dependency information are stored in:
+It can be used to track:
 
-```text
-dvc.lock
-```
-
-You can visualize the pipeline using:
-
-```bash
-dvc dag
-```
-
----
-
-# 📊 Dataset
-
-The project focuses on **credit card transaction fraud detection**.
-
-The dataset contains transaction-related information used to identify whether a transaction is legitimate or fraudulent.
-
-The data pipeline handles tasks such as:
-
-* Data ingestion
-* Data cleaning
-* Feature engineering
-* Data transformation
-* Model preparation
-* Training/evaluation
-
-Large datasets are intentionally kept outside Git and managed using **DVC**.
-
----
-
-# 🔄 Data Version Control with DVC
-
-DVC is used to version and reproduce the project's data pipeline.
-
-Instead of committing large datasets directly to Git, DVC tracks the data and stores the actual data remotely.
-
-### DVC Remote
-
-The project uses an AWS S3 remote:
-
-```text
-s3://credit-demo123
-```
-
-The remote is configured as the default DVC storage.
-
-Push tracked data:
-
-```bash
-dvc push
-```
-
-Pull tracked data:
-
-```bash
-dvc pull
-```
-
-Reproduce the pipeline:
-
-```bash
-dvc repro
-```
-
-Visualize the pipeline:
-
-```bash
-dvc dag
-```
-
-This allows the project to maintain **data versioning alongside Git code versioning**.
-
----
-
-# ☁️ AWS S3
-
-AWS S3 is used as the remote storage backend for DVC.
-
-```text
-Local Machine
-      │
-      ▼
-     DVC
-      │
-      ▼
-   dvc-s3
-      │
-      ▼
-   AWS S3
-      │
-      ▼
-credit-demo123
-```
-
-The project successfully pushes DVC-tracked data to the configured S3 remote.
-
-> 🔐 AWS credentials should never be committed to Git. Configure them through AWS CLI, environment variables, or another secure credential-management mechanism.
-
----
-
-# 🧪 MLflow Experiment Tracking
-
-MLflow is used for experiment tracking and ML lifecycle management.
-
-The project can track information such as:
-
-* Model parameters
-* Evaluation metrics
+* Parameters
+* Metrics
+* Model results
 * Experiments
-* Model runs
-* Training results
-* Model artifacts
+* Artifacts
 
-The local MLflow database is used during development.
+During local development, the project uses an MLflow database and local tracking setup.
 
-MLflow helps compare different model experiments and identify the best-performing configuration.
+## Flask API
 
----
-
-# 🚀 Flask REST API
-
-The trained model is exposed through a Flask application.
-
-The application is located in:
+The trained model is exposed through a Flask application located in:
 
 ```text
 flask_app/
 ```
 
-### Available endpoints
+The application currently provides:
 
-#### Health Check
+### Health check
 
 ```http
 GET /health
 ```
 
-Used to verify that the API is running.
+Used to check whether the API is running.
 
-#### Fraud Prediction
+### Prediction
 
 ```http
 POST /predict
 ```
 
-Used to send transaction information to the trained model and receive a prediction.
+Used to send transaction data to the model and receive a fraud prediction.
 
-Example API structure:
+The Flask application can be tested by importing the application:
 
-```text
-Client
-   │
-   │ POST /predict
-   ▼
-Flask API
-   │
-   ▼
-Preprocessing
-   │
-   ▼
-Trained Model
-   │
-   ▼
-Fraud Prediction
+```bash
+python -c "from flask_app.app import app; print(app.url_map)"
 ```
 
----
+## Setup
 
-# 📁 Project Structure
-
-```text
-Credit-Card-Fraud-Detection-_-MLOps/
-│
-├── .dvc/                       # DVC configuration
-├── .github/
-│   └── workflows/              # GitHub Actions workflows
-│
-├── artifacts/                  # Generated pipeline artifacts
-├── data/                       # Dataset files / DVC-tracked data
-├── docs/                       # Project documentation
-├── flask_app/                  # Flask REST API
-├── local_s3/                   # Local S3-style storage used during development
-├── logs/                       # Application and pipeline logs
-├── models/                     # Trained ML models
-├── notebooks/                  # Exploratory analysis and experiments
-├── references/                 # Reference materials
-├── reports/                    # Evaluation reports and outputs
-│
-├── src/
-│   └── components/             # Core ML pipeline components
-│       ├── model_trainer.py
-│       ├── preprocessing.py
-│       ├── train_model.py
-│       └── visualize.py
-│
-├── src.egg-info/               # Python package metadata
-│
-├── .dvcignore                  # DVC ignore rules
-├── .gitignore                  # Git ignore rules
-├── dvc.yaml                    # DVC pipeline definition
-├── dvc.lock                    # Locked pipeline dependencies
-├── params.yaml                 # ML pipeline parameters
-├── requirements.txt            # Python dependencies
-├── setup.py                    # Package configuration
-├── Makefile                    # Project automation commands
-├── test_environment.py         # Environment validation
-├── tox.ini                     # Testing configuration
-├── LICENSE                     # Project license
-└── README.md                   # Project documentation
-```
-
----
-
-# 🛠️ Tech Stack
-
-| Technology         | Purpose                     |
-| ------------------ | --------------------------- |
-| **Python**         | Core programming language   |
-| **Pandas**         | Data processing             |
-| **NumPy**          | Numerical computation       |
-| **Scikit-learn**   | Machine learning            |
-| **DVC**            | Data & pipeline versioning  |
-| **AWS S3**         | Remote DVC storage          |
-| **MLflow**         | Experiment tracking         |
-| **Flask**          | REST API                    |
-| **Git**            | Source code version control |
-| **GitHub**         | Repository hosting          |
-| **GitHub Actions** | CI/CD automation            |
-| **PyYAML**         | Configuration management    |
-| **Pytest/Tox**     | Testing                     |
-
----
-
-# ⚙️ Installation
-
-## 1. Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/<your-username>/Credit-Card-Fraud-Detection-_-MLOps.git
-
 cd Credit-Card-Fraud-Detection-_-MLOps
 ```
 
-## 2. Create a virtual environment
+### 2. Create the environment
 
 Using Conda:
 
@@ -347,29 +201,21 @@ conda create -n atlas python=3.10
 conda activate atlas
 ```
 
-Or using Python virtual environments:
-
-```bash
-python -m venv .venv
-```
-
----
-
-## 3. Install dependencies
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Make sure DVC S3 support is installed:
+Install DVC S3 support if required:
 
 ```bash
 pip install dvc-s3
 ```
 
----
+## AWS Configuration
 
-# 🔐 AWS Configuration
+The project uses AWS S3 as the DVC remote.
 
 Configure AWS credentials using the AWS CLI:
 
@@ -377,254 +223,524 @@ Configure AWS credentials using the AWS CLI:
 aws configure
 ```
 
-Then test:
+Verify the AWS configuration:
 
 ```bash
 aws sts get-caller-identity
 ```
 
-Verify access to the configured S3 bucket:
+Check access to the DVC bucket:
 
 ```bash
 aws s3 ls s3://credit-demo123
 ```
 
-> Never commit AWS credentials, `.env` files containing secrets, or access keys to GitHub.
+AWS credentials should never be committed to the repository.
 
----
+## Running the Pipeline
 
-# 📦 DVC Setup
-
-Check configured remotes:
-
-```bash
-dvc remote list
-```
-
-Pull the dataset/artifacts:
+After configuring DVC and AWS:
 
 ```bash
 dvc pull
 ```
 
-Run the complete pipeline:
+To reproduce the complete pipeline:
 
 ```bash
 dvc repro
 ```
 
-Push updated DVC data:
+To push updated DVC data to S3:
 
 ```bash
 dvc push
 ```
 
----
+## Running the Flask Application
 
-# 🧪 Running MLflow
-
-Start the MLflow server according to your local configuration.
-
-For example:
-
-```bash
-mlflow ui
-```
-
-Then open the MLflow interface locally to inspect experiments and runs.
-
----
-
-# 🌐 Running the Flask API
-
-Start the Flask application according to the project's Flask configuration.
-
-For example:
+Start the application using Flask:
 
 ```bash
 python -m flask --app flask_app.app run
 ```
 
-The API can then be accessed locally.
+The API will be available locally.
 
-Health check:
+Health endpoint:
 
-```http
-GET /health
+```text
+/health
 ```
 
 Prediction endpoint:
 
-```http
-POST /predict
+```text
+/predict
 ```
 
----
+## Testing
 
-# 🔍 Code Validation
-
-Compile the Python source files:
+Python source files can be checked for syntax errors with:
 
 ```bash
 python -m compileall src flask_app
 ```
 
-Run environment tests:
+The project also includes:
+
+```text
+test_environment.py
+tox.ini
+```
+
+for environment validation and testing configuration.
+
+## CI/CD
+
+GitHub Actions is being used as part of the project's CI/CD setup.
+
+Workflow files are stored in:
+
+```text
+.github/workflows/
+```
+
+The CI/CD pipeline can be extended to automatically:
+
+1. Install project dependencies
+2. Run tests
+3. Validate the ML pipeline
+4. Build the application
+5. Deploy the model/API
+
+## Current MLOps Workflow
+
+```text
+                 GitHub
+                    |
+                    v
+             Source Control
+                    |
+                    v
+              DVC Pipeline
+                    |
+          +---------+---------+
+          |         |         |
+          v         v         v
+       Ingest   Transform   Train
+                              |
+                              v
+                         Evaluation
+                              |
+                  +-----------+-----------+
+                  |                       |
+                  v                       v
+               MLflow                  AWS S3
+             Experiments             DVC Storage
+                  |                       |
+                  +-----------+-----------+
+                              |
+                              v
+                         Flask API
+                              |
+                              v
+                         Prediction
+```
+
+## Future Improvements
+
+* Complete CI/CD automation
+* Dockerize the application
+* Add automated model validation
+* Add model registry
+* Add Prometheus monitoring
+* Add Grafana dashboards
+* Add data drift detection
+* Add model performance monitoring
+* Add automated retraining
+* Add automated recovery/self-healing workflows
+* Deploy the API to a cloud environment
+
+## Author
+
+Pujan Pandey
+
+Machine Learning and MLOps Developer
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more information.
+# Credit Card Fraud Detection — MLOps
+
+An end-to-end machine learning project for credit card fraud detection, built with an MLOps workflow for data versioning, reproducible pipelines, experiment tracking, model evaluation, and API serving.
+
+## Overview
+
+This project focuses on building a reproducible machine learning workflow rather than only training a model in a notebook.
+
+The pipeline covers:
+
+* Data ingestion
+* Data preprocessing and transformation
+* Feature engineering
+* Model training
+* Model evaluation
+* Experiment tracking with MLflow
+* Data and pipeline versioning with DVC
+* Remote storage using AWS S3
+* Model serving through a Flask API
+* Project testing and environment validation
+* CI/CD setup using GitHub Actions
+
+The main DVC pipeline is:
+
+```text
+Data Ingestion
+      |
+      v
+Data Transformation
+      |
+      v
+Model Training
+      |
+      v
+Model Evaluation
+```
+
+The pipeline is defined in `dvc.yaml` and locked using `dvc.lock`.
+
+## Project Structure
+
+```text
+Credit-Card-Fraud-Detection-_-MLOps/
+|
+├── .dvc/                       # DVC configuration
+├── .github/
+│   └── workflows/              # GitHub Actions workflows
+|
+├── artifacts/                  # Generated artifacts
+├── data/                       # Dataset and DVC-tracked data
+├── docs/                       # Documentation
+├── flask_app/                  # Flask application
+├── local_s3/                   # Local storage used during development
+├── logs/                       # Application and pipeline logs
+├── models/                     # Trained models
+├── notebooks/                  # Exploratory notebooks
+├── references/                 # Reference files
+├── reports/                    # Reports and evaluation results
+|
+├── src/
+│   └── components/
+│       ├── model_trainer.py    # Model training logic
+│       ├── preprocessing.py    # Data preprocessing
+│       ├── train_model.py      # Training entry point
+│       └── visualize.py        # Visualization utilities
+|
+├── .dvcignore
+├── .gitignore
+├── dvc.yaml                   # DVC pipeline definition
+├── dvc.lock                   # Locked pipeline state
+├── params.yaml                # Pipeline/model parameters
+├── requirements.txt           # Python dependencies
+├── setup.py                   # Package configuration
+├── Makefile                   # Project commands
+├── test_environment.py        # Environment validation
+├── tox.ini                    # Testing configuration
+├── LICENSE
+└── README.md
+```
+
+## Tech Stack
+
+* Python 3.10
+* Pandas
+* NumPy
+* Scikit-learn
+* DVC
+* dvc-s3
+* AWS S3
+* MLflow
+* Flask
+* Git
+* GitHub Actions
+* Tox
+
+## DVC
+
+DVC is used to track datasets and manage the machine learning pipeline without storing large data files directly in Git.
+
+The project uses an AWS S3 bucket as the DVC remote.
+
+```text
+DVC remote: s3://credit-demo123
+```
+
+Useful commands:
 
 ```bash
-python test_environment.py
+# Check configured remotes
+dvc remote list
+
+# Pull data from the remote
+dvc pull
+
+# Reproduce the pipeline
+dvc repro
+
+# Push tracked data to the remote
+dvc push
+
+# Display the pipeline
+dvc dag
 ```
 
----
-
-# 🔁 Reproducibility
-
-One of the main goals of this project is reproducibility.
-
-The combination of:
+The current pipeline contains:
 
 ```text
-Git
- +
-DVC
- +
-dvc.lock
- +
-params.yaml
- +
-MLflow
- +
-AWS S3
+data_ingestion
+       |
+       v
+data_transformation
+       |
+       v
+model_training
+       |
+       v
+model_evaluation
 ```
 
-allows the ML workflow to be reproduced and tracked across different development environments.
+## MLflow
 
-A simplified workflow is:
+MLflow is used for tracking machine learning experiments and storing information about model runs.
+
+It can be used to track:
+
+* Parameters
+* Metrics
+* Model results
+* Experiments
+* Artifacts
+
+During local development, the project uses an MLflow database and local tracking setup.
+
+## Flask API
+
+The trained model is exposed through a Flask application located in:
 
 ```text
-Developer changes code
-        │
-        ▼
-      Git
-        │
-        ▼
-    DVC Pipeline
-        │
-        ▼
-   Train Model
-        │
-        ▼
-     MLflow
-        │
-        ▼
- Evaluate Model
-        │
-        ▼
-    Version Data
-        │
-        ▼
-      AWS S3
+flask_app/
 ```
 
----
+The application currently provides:
 
-# 🚧 Future Improvements
+### Health check
 
-Planned improvements include:
+```http
+GET /health
+```
 
-* [ ] Complete GitHub Actions CI/CD pipeline
-* [ ] Automated model testing
-* [ ] Automated model validation
-* [ ] Docker containerization
-* [ ] Model registry integration
-* [ ] Production MLflow tracking server
-* [ ] Automated model deployment
-* [ ] Prometheus monitoring
-* [ ] Grafana dashboards
-* [ ] Data drift detection
-* [ ] Model performance monitoring
-* [ ] Automated retraining
-* [ ] Self-healing MLOps workflows
+Used to check whether the API is running.
 
----
+### Prediction
 
-# 📈 MLOps Architecture
+```http
+POST /predict
+```
+
+Used to send transaction data to the model and receive a fraud prediction.
+
+The Flask application can be tested by importing the application:
+
+```bash
+python -c "from flask_app.app import app; print(app.url_map)"
+```
+
+## Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/<your-username>/Credit-Card-Fraud-Detection-_-MLOps.git
+cd Credit-Card-Fraud-Detection-_-MLOps
+```
+
+### 2. Create the environment
+
+Using Conda:
+
+```bash
+conda create -n atlas python=3.10
+conda activate atlas
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Install DVC S3 support if required:
+
+```bash
+pip install dvc-s3
+```
+
+## AWS Configuration
+
+The project uses AWS S3 as the DVC remote.
+
+Configure AWS credentials using the AWS CLI:
+
+```bash
+aws configure
+```
+
+Verify the AWS configuration:
+
+```bash
+aws sts get-caller-identity
+```
+
+Check access to the DVC bucket:
+
+```bash
+aws s3 ls s3://credit-demo123
+```
+
+AWS credentials should never be committed to the repository.
+
+## Running the Pipeline
+
+After configuring DVC and AWS:
+
+```bash
+dvc pull
+```
+
+To reproduce the complete pipeline:
+
+```bash
+dvc repro
+```
+
+To push updated DVC data to S3:
+
+```bash
+dvc push
+```
+
+## Running the Flask Application
+
+Start the application using Flask:
+
+```bash
+python -m flask --app flask_app.app run
+```
+
+The API will be available locally.
+
+Health endpoint:
 
 ```text
-                    ┌───────────────────┐
-                    │     GitHub        │
-                    │  Source Control   │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-                    ┌───────────────────┐
-                    │ GitHub Actions    │
-                    │     CI / CD       │
-                    └─────────┬─────────┘
-                              │
-                              ▼
-┌─────────────┐       ┌───────────────────┐
-│    Data     │──────►│    DVC Pipeline   │
-└─────────────┘       └─────────┬─────────┘
-                                │
-             ┌──────────────────┼──────────────────┐
-             ▼                  ▼                  ▼
-       Data Ingestion    Transformation      Model Training
-                                                    │
-                                                    ▼
-                                            Model Evaluation
-                                                    │
-                          ┌─────────────────────────┤
-                          ▼                         ▼
-                    ┌───────────┐             ┌───────────┐
-                    │  MLflow   │             │ AWS S3    │
-                    │ Tracking  │             │ DVC Data  │
-                    └───────────┘             └───────────┘
-                                                    │
-                                                    ▼
-                                            ┌─────────────┐
-                                            │ Flask API   │
-                                            └──────┬──────┘
-                                                   │
-                                                   ▼
-                                             Predictions
+/health
 ```
 
----
+Prediction endpoint:
 
-# 💡 Key Learning Outcomes
+```text
+/predict
+```
 
-This project demonstrates practical experience with:
+## Testing
 
-* End-to-end ML pipelines
-* Modular ML project architecture
-* Data version control
-* ML experiment tracking
-* Cloud-based artifact/data storage
-* REST API deployment
-* Reproducible ML workflows
-* Git-based development
-* CI/CD preparation
-* Production-oriented MLOps practices
+Python source files can be checked for syntax errors with:
 
----
+```bash
+python -m compileall src flask_app
+```
 
-# 👨‍💻 Author
+The project also includes:
 
-**Pujan Pandey**
+```text
+test_environment.py
+tox.ini
+```
 
-Machine Learning / AI & MLOps Enthusiast
+for environment validation and testing configuration.
 
-GitHub: `https://github.com/<your-username>`
+## CI/CD
 
----
+GitHub Actions is being used as part of the project's CI/CD setup.
 
-# 📄 License
+Workflow files are stored in:
 
-This project is licensed under the **MIT License**.
+```text
+.github/workflows/
+```
 
-See the `LICENSE` file for details.
+The CI/CD pipeline can be extended to automatically:
 
----
+1. Install project dependencies
+2. Run tests
+3. Validate the ML pipeline
+4. Build the application
+5. Deploy the model/API
 
-⭐ If you find this project useful, consider giving the repository a star!
+## Current MLOps Workflow
+
+```text
+                 GitHub
+                    |
+                    v
+             Source Control
+                    |
+                    v
+              DVC Pipeline
+                    |
+          +---------+---------+
+          |         |         |
+          v         v         v
+       Ingest   Transform   Train
+                              |
+                              v
+                         Evaluation
+                              |
+                  +-----------+-----------+
+                  |                       |
+                  v                       v
+               MLflow                  AWS S3
+             Experiments             DVC Storage
+                  |                       |
+                  +-----------+-----------+
+                              |
+                              v
+                         Flask API
+                              |
+                              v
+                         Prediction
+```
+
+## Future Improvements
+
+* Complete CI/CD automation
+* Dockerize the application
+* Add automated model validation
+* Add model registry
+* Add Prometheus monitoring
+* Add Grafana dashboards
+* Add data drift detection
+* Add model performance monitoring
+* Add automated retraining
+* Add automated recovery/self-healing workflows
+* Deploy the API to a cloud environment
+
+## Author
+
+Pujan Pandey
+
+Machine Learning and MLOps Developer
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more information.
