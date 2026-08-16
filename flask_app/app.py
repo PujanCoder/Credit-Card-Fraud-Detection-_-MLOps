@@ -89,6 +89,13 @@ def validate_payload(payload: dict) -> dict:
 
     return record
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "message": "Credit Card Fraud Detection API is running.",
+        "health_endpoint": "/health",
+        "prediction_endpoint": "/predict",
+    }), 200
 
 @app.get("/health")
 def health():
