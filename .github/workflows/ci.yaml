@@ -44,6 +44,7 @@ jobs:
 
   docker:
     needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -74,3 +75,27 @@ jobs:
         run: |
           docker push \
             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name flask-app-cluster
+
+      - name: Deploy application to EKS
+        run: |
+          kubectl apply -f deployment.yaml
+
+      - name: Update deployment image
+        run: |
+          kubectl set image deployment/flask-app \
+            flask-app=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+
+      - name: Wait for deployment
+        run: |
+          kubectl rollout status deployment/flask-app --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods
+          kubectl get svc
